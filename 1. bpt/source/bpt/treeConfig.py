@@ -1,3 +1,5 @@
+from queue import Queue
+
 # this file contains variables
 # will be shared inside 'bpt' package
 
@@ -17,3 +19,16 @@ class NodeSearchDTO:
     def __init__(self, code, index=None):
         self.exit_code = code
         self.index = index
+
+
+# Util functions
+def queue_to_str(queue: Queue):
+    if queue.empty():
+        return ''
+
+    ret_str = str(queue.get())
+    while not queue.empty():
+        ret_str = ret_str + ',' + str(queue.get())
+
+    ret_str = ret_str + '\n'
+    return ret_str

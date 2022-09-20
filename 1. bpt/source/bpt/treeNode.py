@@ -12,8 +12,8 @@ class NodeContent:
         self.temp_r: Optional[BpNode] = temp_r
 
     # utils
-    def has_temp_r(self):
-        return self.temp_r
+    def clean_temp_r(self):
+        self.temp_r = None
 
 
 class BpNode:
@@ -34,13 +34,13 @@ class BpNode:
         self.r: Optional[BpNode] = r
 
     # searching related methods
-    def search_at_node(self, key):
+    def search_at_node(self, key: int):
         len_of_contents = len(self.contents)
         i = 0
 
         while i < len_of_contents and key >= self.contents[i].key:
             if key == self.contents[i].key:
-                return NodeSearchDTO(KEY_ALREADY_EXISTS)
+                return NodeSearchDTO(KEY_ALREADY_EXISTS, i)
             i += 1
 
         if self.is_node_full():
