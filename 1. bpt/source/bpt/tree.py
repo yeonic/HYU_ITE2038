@@ -11,7 +11,8 @@ class BpTree:
         self.root: Optional[BpNode] = None
         self.order = m
 
-    # search methods
+    # 1. search methods
+
     def find_leaf(self, key, queue: Queue = None):
         current = self.root
         while not current.is_leaf:
@@ -65,7 +66,7 @@ class BpTree:
 
         return ret_string
 
-    # insertion related method
+    # 2. insertion related method
     def create_new_tree(self, key, value):
         self.root = BpNode(self.order)
         self.root.contents.append(NodeContent(key, value))
@@ -132,7 +133,7 @@ class BpTree:
             return
 
         # case) when the parent isn't full
-        if not parent.is_node_full():
+        if not parent.is_full():
             return self.insert_to_non_leaf(split_node_content, parent)
 
         # case) when the parent full and will overflow
@@ -141,4 +142,83 @@ class BpTree:
             non_leaf_split = non_leaf.split_node()
             return self.insert_splitee_to_parent(non_leaf_split, non_leaf.parent)
 
+        # 3. deletion related methods
+    def delete(self, key):
+        # find
+        leaf = self.find_leaf(key)
+        res = leaf.search_at_node(key)
+        rm_idx = res.index - 1
 
+        # if key doesn't exist -> return root
+        if not res.exit_code == KEY_ALREADY_EXISTS:
+            return self.root
+
+        # delete at the leaf
+        deleted_key = leaf.contents[rm_idx].key
+        leaf.contents = leaf.contents[:rm_idx] + leaf.contents[rm_idx+1:]
+
+        # when underflow doesn't occur
+        # -> check if root needs to be updated.
+        # -> then update parent
+        # root update and parent update are exclusive
+        if not leaf.now_underflow():
+            res = self.root.search_at_node(deleted_key)
+
+            if res.exit_code == KEY_ALREADY_EXISTS:
+                idx_tb_updated = res.index - 1
+                self.root.contents[idx_tb_updated].key = leaf.contents[0].key
+                return
+
+            return leaf.update_parent(rm_idx, deleted_key)
+
+        # call function rebalancing tree
+        # which contains merging, redistribution operation
+        return self.rebalance_tree(deleted_key, leaf)
+
+    def rebalance_tree(self, deleted_key, current_node: BpNode):
+        if current_node is self.root:
+            # set self.root as child of the current current_node
+            self.root = self.root.contents[0].value
+            return
+
+        if not current_node.is_leaf:
+            # check left/right sibling for redistribution
+            check_res = current_node.check_siblings(deleted_key)
+
+            # no redistribution occurs, merge with left
+            # no left, merge with right
+            # parent underflow -> call rebalance_tree
+            pass
+        else:
+            # when the node is leaf
+            # check if node is leftmost
+            check_res = current_node.check_siblings(deleted_key)
+            if check_res.cmd == BORROW_KEY:
+                sandwiched_parent = current_node.parent.contents[check_res.par_pos]
+
+                if check_res.sib_pos == 'r':
+                    # give the largest content of giver
+                    giver = sandwiched_parent.value
+                    content_to_be_moved = giver.contents.pop()
+
+                    # update parent
+                    sandwiched_parent.key = content_to_be_moved.key
+
+                    # give the key to sibling
+                    return giver.r.put_content_to_leaf(content_to_be_moved)
+
+                else:
+                    next_to_sandwich = current_node.parent.contents[check_res.par_pos + 1]
+
+                    # give the smallest content of giver
+                    giver = next_to_sandwich.value
+                    content_to_be_moved = giver.contents[0]
+                    giver.contents = giver.contents[1:]
+
+                    # update parent
+                    sandwiched_parent.key = content_to_be_moved.key
+                    return sandwiched_parent.value.put_content_to_leaf(content_to_be_moved)
+
+            if check_res.cmd == MERGE:
+                pass
+            pass
