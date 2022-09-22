@@ -38,6 +38,7 @@ class BpNode:
     def search_at_node(self, key: int):
         # returning index is the location to be inserted
         # so in the "delete" method of tree, make index 'index = index - 1'
+        # if exit_code is KEY_ALREADY_EXISTS, 'i' is the idx where key == self.contents[i].key
 
         len_of_contents = len(self.contents)
         i = 0
@@ -100,16 +101,16 @@ class BpNode:
     def update_parent(self, rm_idx: int, deleted_key: int):
         # when update is not needed
         if not rm_idx == 0 or self.now_underflow():
-            return
+            return False
 
         # when deletion occurred in leftmost child
         if deleted_key < self.parent.contents[0].key:
-            return
+            return False
 
         # swap key with newly updated child
         tb_updated = self.parent.search_at_node(deleted_key)
         if not tb_updated.exit_code == KEY_ALREADY_EXISTS:
-            return
+            return False
 
         # check if deletion occurred in rightmost child
         # if it did, swap key with r
@@ -119,6 +120,8 @@ class BpNode:
         else:
             nc_tb_updated = self.parent.contents[tb_updated.index - 1]
             nc_tb_updated.key = self.parent.r.contents[0].key
+
+        return True
 
     def check_siblings(self, deleted_key: int):
         p_res = self.parent.search_at_node(deleted_key)
@@ -151,7 +154,7 @@ class BpNode:
             # if nobody lends key
             return CheckSibDTO(sib_pos='l', cmd=MERGE, par_pos=idx-1)
 
-    # check only left sib ro right sib
+    # check only left sib or right sib
     def one_way_check(self, sib_pos, par_pos: int):
         if self.can_borrow():
             return CheckSibDTO(sib_pos=sib_pos, cmd=BORROW_KEY, par_pos=par_pos)
@@ -175,6 +178,10 @@ class BpNode:
     # checks if node underflow now
     # expect to be used after deleting
     def now_underflow(self):
+        # non-leaf node with no key
+        if self.contents[0] is None:
+            return True
+
         order = self.max_keys + 1
         if len(self.contents) < ceil(order / 2) - 1:
             return True
