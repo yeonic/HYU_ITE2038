@@ -3,7 +3,7 @@ from source.fileman.csvman import CsvMan
 
 # entry point of the project
 if __name__ == '__main__':
-    tree = BpTree(5)
+    tree = BpTree(7)
     csv_manager = CsvMan('./input.csv')
     csv_manager.read_input()
 
@@ -11,5 +11,6 @@ if __name__ == '__main__':
         key_val = csv_manager.task_queue.get().split(',')
         tree.insert(int(key_val[0]), int(key_val[1]))
 
-    print(tree.single_key_search(53))
-    print(tree.range_search(10000, 100000))
+    print(tree.__slots__)
+    print(tree.single_key_search(200))
+    print(tree.range_search(4500, 4600))
