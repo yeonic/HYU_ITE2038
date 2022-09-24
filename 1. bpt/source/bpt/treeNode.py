@@ -34,6 +34,18 @@ class BpNode:
         self.r: Optional[BpNode] = r
 
     # 1. searching related methods
+    def search_key_non_leaf(self, key: int):
+        i = 0
+        len_of_node = len(self.contents)
+        while i < len_of_node:
+            if key == self.contents[i].key:
+                break
+            i = i + 1
+
+        if i == len_of_node:
+            return False
+
+        return i
 
     def search_at_node(self, key: int):
         # returning index is the location to be inserted
@@ -103,22 +115,25 @@ class BpNode:
         if not rm_idx == 0 or self.now_underflow():
             return False
 
+        if self.parent.contents[0].key is None:
+            return False
+
         # when deletion occurred in leftmost child
         if deleted_key < self.parent.contents[0].key:
             return False
 
         # swap key with newly updated child
-        tb_updated = self.parent.search_at_node(deleted_key)
-        if not tb_updated.exit_code == KEY_ALREADY_EXISTS:
+        tb_updated = self.parent.search_key_non_leaf(deleted_key)
+        if type(tb_updated) == bool and not tb_updated:
             return False
 
         # check if deletion occurred in rightmost child
         # if it did, swap key with r
-        if tb_updated.index < len(self.parent.contents):
-            nc_tb_updated = self.parent.contents[tb_updated.index]
-            nc_tb_updated.key = nc_tb_updated.value.contents[0].key
+        if tb_updated < len(self.parent.contents) - 1:
+            nc_tb_updated = self.parent.contents[tb_updated]
+            nc_tb_updated.key = self.parent.contents[tb_updated+1].value.contents[0].key
         else:
-            nc_tb_updated = self.parent.contents[tb_updated.index - 1]
+            nc_tb_updated = self.parent.contents[tb_updated]
             nc_tb_updated.key = self.parent.r.contents[0].key
 
         return True
@@ -130,7 +145,7 @@ class BpNode:
 
         # if self is leftmost node of self.parent
         if idx == 0:
-            sibling = self.parent.r if idx >= len_of_par else self.parent.contents[idx+1].value
+            sibling = self.parent.r if idx + 1 == len_of_par else self.parent.contents[idx+1].value
             return sibling.one_way_check(sib_pos='r', par_pos=idx)
 
         # if self is rightmost node of self.parent
@@ -178,13 +193,14 @@ class BpNode:
     # checks if node underflow now
     # expect to be used after deleting
     def now_underflow(self):
-        # non-leaf node with no key
-        if self.contents[0] is None:
-            return True
-
         order = self.max_keys + 1
         if len(self.contents) < ceil(order / 2) - 1:
             return True
+
+        # non-leaf node with no key
+        if self.contents[0].key is None:
+            return True
+
         return False
 
     # simply put content to leaf

@@ -3,6 +3,9 @@ from source.bpt.treeConfig import *
 from typing import Optional
 from queue import Queue
 
+# import sys
+# sys.setrecursionlimit(100000)
+
 
 class BpTree:
     __slots__ = ["root", "order"]
@@ -61,8 +64,6 @@ class BpTree:
             if res_idx == len(leaf.contents):
                 leaf = leaf.r
                 res_idx = 0
-
-        ret_string = ret_string + str(leaf.contents[res_idx].key) + ',' + str(leaf.contents[res_idx].value)
 
         return ret_string
 
@@ -151,6 +152,7 @@ class BpTree:
 
         # if key doesn't exist -> return root
         if not res.exit_code == KEY_ALREADY_EXISTS:
+            print('The key is not found in this tree.')
             return self.root
 
         # delete at the leaf
@@ -162,21 +164,22 @@ class BpTree:
         # -> then update parent
         # root update and parent update are exclusive
         if not leaf.now_underflow():
-            return self.update_root(deleted_key, leaf) or leaf.update_parent(rm_idx, deleted_key)
+            if not leaf.update_parent(rm_idx, deleted_key):
+                return self.update_root(deleted_key, leaf)
+            return
 
         # call function rebalance_tree
         # which contains merging, redistribution operation
         return self.rebalance_tree(deleted_key, leaf)
 
     def update_root(self, deleted_key, leaf: BpNode):
-        res = self.root.search_at_node(deleted_key)
+        idx_tb_updated = self.root.search_key_non_leaf(deleted_key)
 
-        if res.exit_code == KEY_ALREADY_EXISTS:
-            idx_tb_updated = res.index - 1
-            self.root.contents[idx_tb_updated].key = leaf.contents[0].key
-            return True
+        if type(idx_tb_updated) == bool and not idx_tb_updated:
+            return False
 
-        return False
+        self.root.contents[idx_tb_updated].key = leaf.contents[0].key
+        return True
 
     def rebalance_tree(self, deleted_key, current_node: BpNode):
         if current_node is self.root:
@@ -187,7 +190,7 @@ class BpTree:
         check_res = current_node.check_siblings(deleted_key)
 
         if check_res.cmd == BORROW_KEY:
-            return self.redistribute_node(current_node, check_res)
+            return self.redistribute_node(current_node, deleted_key, check_res)
 
         if check_res.cmd == MERGE:
             merge_del_key = self.merge_node(current_node, deleted_key, check_res)
@@ -195,28 +198,38 @@ class BpTree:
             if current_node.parent.now_underflow():
                 return self.rebalance_tree(merge_del_key, current_node.parent)
 
-    @staticmethod
-    def redistribute_node(current_node: BpNode, check_res: CheckSibDTO):
+    def redistribute_node(self, current_node: BpNode, deleted_key: int, check_res: CheckSibDTO):
         sandwiched_parent = current_node.parent.contents[check_res.par_pos]
         len_of_parent = len(current_node.parent.contents)
         if not current_node.is_leaf:
             if check_res.sib_pos == 'l':
                 giver = sandwiched_parent.value
-                content_to_be_moved = giver.contents[len(giver.contents) - 1]
+                moved_key = giver.contents[len(giver.contents) - 1].key
 
-                current_node.contents[0].key = sandwiched_parent.key
-                current_node.r = current_node.contents[0].value
-                current_node.contents[0].value = giver.r
+                # patch node content which l_sibling gave
+                new_content = NodeContent(sandwiched_parent.key, giver.r)
+                sandwiched_parent.key = moved_key
+                current_node.contents = [new_content] + current_node.contents[0:]
 
-                sandwiched_parent.key = content_to_be_moved.key
-                giver.r = content_to_be_moved.value
+                if current_node.r is None:
+                    current_node.r = current_node.contents[1].key
+                    current_node.contents.pop()
+
+                # update parent
+                current_node.contents[0].value.parent = current_node
+
+                giver.r = giver.contents[len(giver.contents) - 1].value
+
                 giver.contents.pop()
             else:
-                giver = current_node.parent.contents[check_res.par_pos + 1].value if check_res.par_pos < len_of_parent else current_node.parent.r
+                giver = current_node.parent.contents[check_res.par_pos + 1].value if check_res.par_pos < len_of_parent - 1 else current_node.parent.r
                 content_to_be_moved = giver.contents[0]
 
                 current_node.contents[0].key = sandwiched_parent.key
                 current_node.r = content_to_be_moved.value
+
+                # update parent
+                current_node.r.parent = current_node
 
                 sandwiched_parent.key = content_to_be_moved.key
                 giver.contents = giver.contents[1:]
@@ -231,17 +244,20 @@ class BpTree:
             sandwiched_parent.key = content_to_be_moved.key
 
             # give the key to sibling
-            return giver.r.put_content_to_leaf(content_to_be_moved)
+            giver.r.put_content_to_leaf(content_to_be_moved)
 
         else:
             # give the smallest content of giver
-            giver = current_node.parent.contents[check_res.par_pos + 1].value if check_res.par_pos < len_of_parent else current_node.parent.r
+            giver = current_node.parent.contents[check_res.par_pos + 1].value if check_res.par_pos < len_of_parent - 1 else current_node.parent.r
             content_to_be_moved = giver.contents[0]
             giver.contents = giver.contents[1:]
 
             # update parent
-            sandwiched_parent.key = content_to_be_moved.key
-            return sandwiched_parent.value.put_content_to_leaf(content_to_be_moved)
+            sandwiched_parent.key = giver.contents[0].key
+            sandwiched_parent.value.put_content_to_leaf(content_to_be_moved)
+
+        if not current_node.update_parent(0, deleted_key):
+            return self.update_root(deleted_key, current_node)
 
     def merge_node(self, current_node: BpNode, deleted_key, check_res: CheckSibDTO):
         len_of_parent = len(current_node.parent.contents)
@@ -255,13 +271,25 @@ class BpTree:
                 if check_res.sib_pos == 'r':
                     r_sibling = current_node.parent.r
                     current_node.contents[0].key = sandwiched_parent.key
+                    r_sibling.contents[0].value.parent = current_node
                     current_node.contents = current_node.contents + r_sibling.contents
+                    current_node.r = r_sibling.r
+                    current_node.r.parent = current_node
+
+                    self.update_root(deleted_key, current_node)
 
                 else:
                     l_sibling = current_node.parent.contents[0].value
                     down_content = NodeContent(sandwiched_parent.key, l_sibling.r)
+
                     l_sibling.contents.append(down_content)
-                    l_sibling.r = current_node.contents[0].value
+
+                    if current_node.r is None:
+                        l_sibling.r = current_node.contents[0].value
+                    else:
+                        l_sibling.r = current_node.r
+                        l_sibling.contents = l_sibling.contents + current_node.contents
+                    l_sibling.r.parent = l_sibling
 
                 current_node.parent.r = None
                 current_node.parent.contents[0].key = None
@@ -297,10 +325,11 @@ class BpTree:
 
                 if len_of_parent == 1:
                     current_node.parent.r = None
-
+                    current_node.parent.contents[0].key = None
                 else:
                     current_node.parent.contents[sandwiched_idx + 1].value = current_node
-                    self.update_root(deleted_key, r_sibling)
+                    current_node.parent.contents = current_node.parent.contents[sandwiched_idx + 1:]
+                self.update_root(deleted_key, current_node)
 
             else:
                 l_sibling = sandwiched_parent.value
@@ -311,10 +340,19 @@ class BpTree:
 
                 if len_of_parent == 1:
                     l_sibling.parent.r = None
-
+                    l_sibling.parent.contents[0].key = None
                 else:
-                    current_node.parent.contents[sandwiched_idx + 1].value = l_sibling
+                    if sandwiched_idx < len_of_parent - 1:
+                        current_node.parent.contents[sandwiched_idx + 1].value = l_sibling
+                    else:
+                        current_node.parent.r = l_sibling
+
                     current_node.parent.contents = current_node.parent.contents[:sandwiched_idx] + current_node.parent.contents[sandwiched_idx+1:]
+
+                l_sibling.parent = current_node.parent
+
+                if not current_node.update_parent(0, deleted_key):
+                    self.update_root(deleted_key, current_node)
 
         # delete key of sandwiched_parent
         # this key is used to call rebalance tree recursively

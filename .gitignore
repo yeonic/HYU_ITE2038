@@ -1,7 +1,19 @@
+# IDE related files
 *.idea/
+
+# Mac dir file
 .DS_Store
 
-#Byte-compiled / optimized / DLL files
+# input files
+index.dat
+input.csv
+delete.csv
+
+# csvgen
+csvgen.py
+
+
+# Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
 *$py.class
