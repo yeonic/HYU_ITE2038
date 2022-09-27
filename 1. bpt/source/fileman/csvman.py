@@ -11,16 +11,11 @@ class CsvMan:
 
     def read_input(self):
         csv_file = open(self.input_file, 'r')
-        return self.record_input(csv_file)
-
-    def record_input(self, csv_file):
         for line in csv_file:
             self.task_queue.put(line.rstrip())
 
-    #
-    # csv_manager = CsvMan('./input.csv')
-    # csv_manager.read_input()
-    #
-    # while not csv_manager.task_queue.empty():
-    #     key_val = csv_manager.task_queue.get().split(',')
-    #     tree.insert(int(key_val[0]), int(key_val[1]))
+    def is_queue_empty(self):
+        return self.task_queue.empty()
+
+    def num_of_items(self):
+        return self.task_queue.qsize()

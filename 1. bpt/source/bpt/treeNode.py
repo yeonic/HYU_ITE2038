@@ -115,7 +115,7 @@ class BpNode:
         if not rm_idx == 0 or self.now_underflow():
             return False
 
-        if self.parent.contents[0].key is None:
+        if self.parent is None or self.parent.contents[0].key is None:
             return False
 
         # when deletion occurred in leftmost child

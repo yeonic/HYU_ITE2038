@@ -6,8 +6,8 @@ from source.fileman.datman import DatMan
 
 def check_tree(loaded_tree: BpTree):
     if not loaded_tree:
-        print('Please check your index.dat file. Tree could not be loaded.')
-        print('exit program')
+        print('Tree could not be loaded :O')
+        print('Please check your index.dat file. Exit program')
         exit()
 
 
@@ -35,7 +35,7 @@ if __name__ == '__main__':
         csv_manager.read_input()
 
         print('Insertion in progress...')
-        while not csv_manager.task_queue.empty():
+        while not csv_manager.is_queue_empty():
             key_val = csv_manager.task_queue.get().split(',')
             tree.insert(int(key_val[0]), int(key_val[1]))
 
@@ -53,8 +53,8 @@ if __name__ == '__main__':
         csv_manager.read_input()
 
         print('Deletion in progress...')
-        while not csv_manager.task_queue.empty():
-            del_key = csv_manager.task_queue.get()
+        while not csv_manager.is_queue_empty():
+            del_key = int(csv_manager.task_queue.get())
             tree.delete(int(del_key))
 
         dat_manager.write_tree(tree)

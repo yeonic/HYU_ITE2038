@@ -3,9 +3,6 @@ from source.bpt.treeConfig import *
 from typing import Optional
 from queue import Queue
 
-# import sys
-# sys.setrecursionlimit(100000)
-
 
 class BpTree:
     __slots__ = ["root", "order"]
@@ -15,7 +12,6 @@ class BpTree:
         self.order = m
 
     # 1. search methods
-
     def find_leaf(self, key, queue: Queue = None):
         current = self.root
         while not current.is_leaf:
@@ -182,9 +178,13 @@ class BpTree:
         return True
 
     def rebalance_tree(self, deleted_key, current_node: BpNode):
-        if current_node is self.root:
-            # set self.root as child of the current current_node
-            self.root = self.root.contents[0].value
+        if current_node.parent is None:
+            if not len(current_node.contents) == 0 and \
+                    current_node.contents[0].key is None:
+                # set self.root as child of the current current_node
+                self.root = current_node.contents[0].value
+                self.root.parent = None
+                return
             return
 
         check_res = current_node.check_siblings(deleted_key)
@@ -225,7 +225,12 @@ class BpTree:
                 giver = current_node.parent.contents[check_res.par_pos + 1].value if check_res.par_pos < len_of_parent - 1 else current_node.parent.r
                 content_to_be_moved = giver.contents[0]
 
-                current_node.contents[0].key = sandwiched_parent.key
+                current_node.contents.append(NodeContent(sandwiched_parent.key, current_node.r))
+
+                if current_node.contents[0].key is None:
+                    current_node.contents[1].value = current_node.contents[0].value
+                    current_node.contents = current_node.contents[1:]
+
                 current_node.r = content_to_be_moved.value
 
                 # update parent
@@ -270,11 +275,19 @@ class BpTree:
             if len_of_parent == 1:
                 if check_res.sib_pos == 'r':
                     r_sibling = current_node.parent.r
-                    current_node.contents[0].key = sandwiched_parent.key
-                    r_sibling.contents[0].value.parent = current_node
+
+                    for node_content in r_sibling.contents:
+                        node_content.value.parent = current_node
+                    r_sibling.r.parent = current_node
+
+                    if current_node.r is None:
+                        current_node.contents[0].key = sandwiched_parent.key
+                    else:
+                        down_content = NodeContent(sandwiched_parent.key, current_node.r)
+                        current_node.contents.append(down_content)
+
                     current_node.contents = current_node.contents + r_sibling.contents
                     current_node.r = r_sibling.r
-                    current_node.r.parent = current_node
 
                     self.update_root(deleted_key, current_node)
 
@@ -290,6 +303,9 @@ class BpTree:
                         l_sibling.r = current_node.r
                         l_sibling.contents = l_sibling.contents + current_node.contents
                     l_sibling.r.parent = l_sibling
+
+                    if l_sibling.parent.parent is None:
+                        l_sibling.parent = None
 
                 current_node.parent.r = None
                 current_node.parent.contents[0].key = None
