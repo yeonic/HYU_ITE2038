@@ -11,10 +11,6 @@ class NodeContent:
         self.value: Union[int, BpNode] = value
         self.temp_r: Optional[BpNode] = temp_r
 
-    # utils
-    def clean_temp_r(self):
-        self.temp_r = None
-
 
 class BpNode:
     __slots__ = ["max_keys", "parent", "is_leaf", "contents", "r"]
@@ -34,19 +30,6 @@ class BpNode:
         self.r: Optional[BpNode] = r
 
     # 1. searching related methods
-    def search_key_non_leaf(self, key: int):
-        i = 0
-        len_of_node = len(self.contents)
-        while i < len_of_node:
-            if key == self.contents[i].key:
-                break
-            i = i + 1
-
-        if i == len_of_node:
-            return False
-
-        return i
-
     def search_at_node(self, key: int):
         # returning index is the location to be inserted
         # so in the "delete" method of tree, make index 'index = index - 1'
@@ -55,46 +38,79 @@ class BpNode:
         len_of_contents = len(self.contents)
         i = 0
 
+        # iterates while input key is larger than key of current iteration.
         while i < len_of_contents and key >= self.contents[i].key:
             if self.is_leaf and key == self.contents[i].key:
                 return NodeSearchDTO(KEY_ALREADY_EXISTS, i)
             i += 1
 
+        # when node is full(len of node > max_key)
         if self.is_full():
             return NodeSearchDTO(NODE_IS_FULL, i)
 
+        # when node is not full
+        # but the given key is the largest in the node
         if i == len_of_contents:
             return NodeSearchDTO(SEARCH_SUCCEED_EOC, i)
 
         return NodeSearchDTO(SEARCH_SUCCEED, i)
+
+    def search_key_non_leaf(self, key: int):
+        i = 0
+        len_of_node = len(self.contents)
+
+        # search non_leaf_node from index 0 to len of node_content
+        while i < len_of_node:
+            if key == self.contents[i].key:
+                break
+            i = i + 1
+
+        # if search fails, return False
+        if i == len_of_node:
+            return False
+
+        return i
 
     # 2. insertion related methods
 
     # node split method
     # returns 'NodeContent' not 'BpNode'
     # Connect-to-parent operation needs to be executed in other method
-    def split_node(self):
+    def split_node(self, left_of_splitee=None):
         cutting_point = ceil(len(self.contents) / 2)
 
+        # split node into two pieces
         right_child = BpNode(order=self.max_keys + 1, contents=self.contents[cutting_point:], r=self.r)
         left_child = BpNode(order=self.max_keys + 1, contents=self.contents[:cutting_point], r=right_child)
 
+        # since left_of_splitee may not be given, need to check
+        # if it was given, connect left_child to left_of_splitee
+        if left_of_splitee is not None:
+            left_of_splitee.r = left_child
+
         ret_content = NodeContent(key=None, value=left_child, temp_r=right_child)
 
+        # if splitted node is leaf
+        # just set new node_content's key to right_child's key
         if self.is_leaf:
             ret_content.key = right_child.contents[0].key
 
+        # if split node is not leaf
         else:
             right_child.is_leaf = False
             left_child.is_leaf = False
 
+            # the rightmost content of left_child should be discarded.
             discard_pos = len(left_child.contents) - 1
             last_l_content = left_child.contents[discard_pos]
+
+            # set ret_content.key to key of discarded content
             ret_content.key = last_l_content.key
 
             left_child.contents = left_child.contents[:discard_pos]
             left_child.r = last_l_content.value
 
+            # set split content's parent to new parent
             for item_l in left_child.contents:
                 item_l.value.parent = left_child
             left_child.r.parent = left_child
@@ -103,13 +119,13 @@ class BpNode:
                 item_r.value.parent = right_child
             right_child.r.parent = right_child
 
+            # connect left and right child to ret_content
             ret_content.value = left_child
             ret_content.temp_r = right_child
 
         return ret_content
 
     # 3. deletion related methods
-
     def update_parent(self, rm_idx: int, deleted_key: int):
         # when update is not needed
         if not rm_idx == 0 or self.now_underflow():

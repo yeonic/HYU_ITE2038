@@ -1,4 +1,5 @@
 import csv
+import sys
 from random import sample
 
 if __name__ == '__main__':
@@ -8,7 +9,7 @@ if __name__ == '__main__':
     csv_writer_input = csv.writer(f1)
     csv_writer_delete = csv.writer(f2)
 
-    size = int(input('# of rows: '))
+    size = int(sys.argv[1]) if len(sys.argv) > 1 else int(input('# of rows: '))
 
     rand_list = range(1, size*10)
     rands = sample(rand_list, size)

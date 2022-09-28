@@ -34,23 +34,28 @@ if __name__ == '__main__':
         csv_manager = CsvMan(input_csv)
         csv_manager.read_input()
 
+        size = csv_manager.num_of_items()
         print('Insertion in progress...')
         while not csv_manager.is_queue_empty():
+            progress = float((size-csv_manager.num_of_items())/size) * 100
+            print(f'Operation {progress:.2f}% completed...', end='\r')
             key_val = csv_manager.task_queue.get().split(',')
             tree.insert(int(key_val[0]), int(key_val[1]))
 
         dat_manager.write_tree(tree)
         print('Insertion done!')
-        exit()
 
     # deletion
     elif command == '-d':
         tree = dat_manager.load_tree()
         check_tree(tree)
 
+        print('Range search in progress...')
+        print('Tree is building...')
         delete_csv = sys.argv[3]
         csv_manager = CsvMan(delete_csv)
         csv_manager.read_input()
+        print('Completed building tree!\n\nNow searching...')
 
         print('Deletion in progress...')
         while not csv_manager.is_queue_empty():
@@ -64,8 +69,11 @@ if __name__ == '__main__':
     # single key search
     elif command == '-s':
         key = int(sys.argv[3])
+        print('Range search in progress...')
+        print('Tree is building...')
         tree: BpTree = dat_manager.load_tree()
         check_tree(tree)
+        print('Completed building tree!\n\nNow searching...')
 
         ret_str = tree.single_key_search(key)
         print(ret_str) if ret_str.__len__() != 0 else print('0 key matched the given key :(')
@@ -74,9 +82,11 @@ if __name__ == '__main__':
     elif command == '-r':
         start_key = int(sys.argv[3])
         end_key = int(sys.argv[4])
-
+        print('Range search in progress...')
+        print('Tree is building...')
         tree: BpTree = dat_manager.load_tree()
         check_tree(tree)
+        print('Completed building tree!\n\nNow searching...')
 
         ret_str = tree.range_search(start_key, end_key)
         print(ret_str) if ret_str.__len__() != 0 else print('0 key in the given range :(')

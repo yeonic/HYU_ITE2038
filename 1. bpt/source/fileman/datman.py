@@ -40,7 +40,7 @@ class DatMan:
     def write_tree(self, tree: BpTree):
         with open(self.dat_file, 'w', newline='') as f:
             # order of tree is recorded on the first line
-            f.write(str(tree.order) + '\n')
+            f.write(str(tree.order))
             node = tree.root
 
             if not node:
@@ -61,7 +61,7 @@ class DatMan:
             # data is saved in 'key,value'-form
             while node is not None:
                 for i in range(0, len(node.contents)):
-                    f.write(str(node.contents[i].key) + ',' + str(node.contents[i].value) + '\n')
+                    f.write('\n'+str(node.contents[i].key) + ',' + str(node.contents[i].value))
                 node = node.r
 
         return True

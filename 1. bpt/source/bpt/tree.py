@@ -89,7 +89,9 @@ class BpTree:
 
     def insert_to_leaf_and_split(self, leaf: Optional[BpNode], index, key, value):
         leaf.contents = leaf.contents[:index] + [NodeContent(key, value)] + leaf.contents[index:]
-        split_node_content: NodeContent = leaf.split_node()
+
+        left_of_splitee = self.find_left_of_splitee(leaf)
+        split_node_content: NodeContent = leaf.split_node(left_of_splitee)
 
         return self.insert_splitee_to_parent(split_node_content, leaf.parent)
 
@@ -108,11 +110,6 @@ class BpTree:
         else:
             non_leaf.contents = non_leaf.contents[:res_idx] + [content] + non_leaf.contents[res_idx:]
             non_leaf.contents[res_idx + 1].value = non_leaf.contents[res_idx].temp_r
-
-        # if param content is split content of leaf
-        # connect leaf to left sibling's r
-        if content.value.is_leaf and res_idx > 0:
-            non_leaf.contents[res_idx-1].value.r = non_leaf.contents[res_idx].value
 
         return non_leaf
 
@@ -139,7 +136,30 @@ class BpTree:
             non_leaf_split = non_leaf.split_node()
             return self.insert_splitee_to_parent(non_leaf_split, non_leaf.parent)
 
-        # 3. deletion related methods
+    # will be used to find place of rightmost leaf before splitee
+    # to connect previous leafs to splitee
+    def find_left_of_splitee(self, splitee: BpNode):
+        current = self.root
+
+        # find the leftmost leaf of tree
+        while not current.is_leaf:
+            current = current.contents[0].value
+
+        # if splitee is leftmost leaf
+        # or splitee is current root of tree
+        if current is splitee:
+            return None
+
+        # traverse until current.r is splitee
+        while current.r is not splitee:
+            current = current.r
+
+            if current is None:
+                return None
+
+        return current
+
+    # 3. deletion related methods
     def delete(self, key):
         # find
         leaf = self.find_leaf(key)
@@ -304,8 +324,8 @@ class BpTree:
                         l_sibling.contents = l_sibling.contents + current_node.contents
                     l_sibling.r.parent = l_sibling
 
-                    if l_sibling.parent.parent is None:
-                        l_sibling.parent = None
+                if l_sibling.parent.parent is None:
+                    l_sibling.parent = None
 
                 current_node.parent.r = None
                 current_node.parent.contents[0].key = None
