@@ -76,7 +76,7 @@ if __name__ == '__main__':
         print('Completed building tree!\n\nNow searching...')
 
         ret_str = tree.single_key_search(key)
-        print(ret_str) if ret_str.__len__() != 0 else print('0 key matched the given key :(')
+        print(ret_str)
         exit()
 
     elif command == '-r':

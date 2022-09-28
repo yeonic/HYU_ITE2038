@@ -14,14 +14,20 @@ class BpTree:
     # 1. search methods
     def find_leaf(self, key, queue: Queue = None):
         current = self.root
+
         while not current.is_leaf:
+            # search key in the node
             res = current.search_at_node(key)
 
+            # if given key is the largest in the node
+            # move to rightmost child
             if res.index == len(current.contents):
                 queue and queue.put(current.contents[res.index - 1].key)
                 current = current.r
                 continue
 
+            # if given key is smaller than some key in the node
+            # move via left branch of that NodeContent
             queue and queue.put(current.contents[res.index].key)
             current = current.contents[res.index].value
 
@@ -29,10 +35,15 @@ class BpTree:
 
     def single_key_search(self, key):
         traverse_queue = Queue()
+
+        # get down to the leaf that correspond to the key
         leaf = self.find_leaf(key, traverse_queue)
 
+        # search the given
         res = leaf.search_at_node(key)
         res_idx = res.index
+
+        # if key is not found in current node
         if not res.exit_code == KEY_ALREADY_EXISTS:
             leaf = leaf.r
             res_idx = 0
@@ -45,18 +56,28 @@ class BpTree:
         return formatted_str
 
     def range_search(self, start_key, end_key):
+        # find leaf node closest to start_key
         leaf = self.find_leaf(start_key)
+
+        # search the starting position inside the leaf node
+        # which we have searched upward
         res_idx = leaf.search_at_node(start_key).index
         ret_string = ''
 
+        # if res_idx is in the border of the node
+        # slightly move to right sibling
+        # this situation may occur because search_at_node is optimised to insertion
         if res_idx == len(leaf.contents):
             leaf = leaf.r
             res_idx = 0
 
+        # traverse inside leaf
+        # while current leaf content's key is smaller than end_key
         while leaf.contents[res_idx].key < end_key:
             ret_string = ret_string + str(leaf.contents[res_idx].key) + ',' + str(leaf.contents[res_idx].value) + '\n'
             res_idx += 1
 
+            # when we reach end of one node, we need to jump to right sibling
             if res_idx == len(leaf.contents):
                 leaf = leaf.r
                 res_idx = 0
@@ -69,28 +90,39 @@ class BpTree:
         self.root.contents.append(NodeContent(key, value))
 
     def insert(self, key, value):
+        # when there is no node in the tree
         if self.root is None:
             return self.create_new_tree(key, value)
 
+        # find the leaf to insert new key-val pair
         leaf = self.find_leaf(key)
         res = leaf.search_at_node(key)
 
+        # when duplicated key exists
         if res.exit_code == KEY_ALREADY_EXISTS:
             return print('THE KEY is ALREADY_EXIST')
 
+        # when new NodeContent gonna add to the end of the leaf
         if res.exit_code == SEARCH_SUCCEED_EOC:
             leaf.contents.append((NodeContent(key, value)))
 
+        # when new NodeContent gonna add to the middle of the leaf
         if res.exit_code == SEARCH_SUCCEED:
             leaf.contents = leaf.contents[:res.index] + [NodeContent(key, value)] + leaf.contents[res.index:]
 
+        # when the leaf overflows after we inserted new key-val
         if res.exit_code == NODE_IS_FULL:
             return self.insert_to_leaf_and_split(leaf, res.index, key, value)
 
     def insert_to_leaf_and_split(self, leaf: Optional[BpNode], index, key, value):
+        # insert new NodeContent to the leaf
+        # covers overflow later
         leaf.contents = leaf.contents[:index] + [NodeContent(key, value)] + leaf.contents[index:]
 
+        # find node need to be connected to left fragment of splitee
         left_of_splitee = self.find_left_of_splitee(leaf)
+
+        # split node
         split_node_content: NodeContent = leaf.split_node(left_of_splitee)
 
         return self.insert_splitee_to_parent(split_node_content, leaf.parent)
@@ -116,10 +148,12 @@ class BpTree:
     def insert_splitee_to_parent(self, split_node_content, parent: BpNode):
         # case) when the node is root
         if not parent:
+            # create new root and connect split_node_content
             new_root = BpNode(self.order, leaf=False)
             new_root.contents.append(split_node_content)
             new_root.r = split_node_content.temp_r
 
+            # change parent to new_root
             split_node_content.temp_r.parent = new_root
             split_node_content.value.parent = new_root
 
@@ -132,6 +166,7 @@ class BpTree:
 
         # case) when the parent full and will overflow
         else:
+            # split non_leaf and put it into parent
             non_leaf = self.insert_to_non_leaf(split_node_content, parent)
             non_leaf_split = non_leaf.split_node()
             return self.insert_splitee_to_parent(non_leaf_split, non_leaf.parent)
