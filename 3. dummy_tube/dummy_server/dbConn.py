@@ -17,7 +17,7 @@ class DbConn:
             password='jayyeon0802', db='dummy_tube', charset='utf8'
         )
 
-    def exec_query_insert(self, sql, args):
+    def exec_query_insert(self, sql, args=()):
         if not self.connection.open:
             self._connect()
 
@@ -32,7 +32,7 @@ class DbConn:
             print(e)
             return 0
 
-    def exec_query_fetch(self, sql, args, mode):
+    def exec_query_fetch(self, sql, mode, args=()):
         if not self.connection.open:
             self._connect()
 

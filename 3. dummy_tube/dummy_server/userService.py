@@ -1,12 +1,15 @@
 from pymysql import err
 import re
+from typing import *
+from channelService import *
 
 
 class UserService:
-    __slots__ = ["db"]
+    __slots__ = ["db", "channelService"]
 
     def __init__(self, db_conn):
         self.db = db_conn
+        self.channelService = ChannelService(self.db)
 
     def create_user(self, email, password, name, pnum):
         mail_regex = re.compile(r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+')
@@ -35,8 +38,28 @@ class UserService:
 
         # fetch userId added just above
         # to add as fk to default channel
-        sql = "SELECT userId FROM User WHERE email=%s"
-        userId = self.db.exec_query_fetch(sql, args=(email), mode='one')
+        sql = "SELECT userId, chanCount, userName FROM User WHERE email=%s"
+        result: Dict = self.db.exec_query_fetch(sql, args=(email), mode='one')
 
         # then create default channel
+        res = self.channelService.create_channel(result["userName"], result["userId"], result["chanCount"])
+        if res == 0:
+            return 0
 
+        # update channel count to 1
+        sql = "UPDATE User SET chanCount = chanCount + 1 WHERE userId=%s"
+        self.db.exec_query_insert(sql, args=(result["userId"]))
+
+        return 1
+
+    def sign_in(self, email, password):
+        sql = "SELECT userId FROM User WHERE email=%s AND password=%s"
+        result = self.db.exec_query_fetch(sql, "one", args=(email, password))
+
+        if result is None:
+            print("Login failed.")
+            return 0
+
+        print(result)
+
+        return result["userId"]
