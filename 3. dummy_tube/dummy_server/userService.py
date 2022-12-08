@@ -26,7 +26,8 @@ class UserService:
             return 0
 
         # do insert op
-        sql = "INSERT INTO User(email, password, userName, mobileNum) VALUES (%s, %s, %s, %s)"
+        sql = "INSERT INTO User(email, password, userName, mobileNum) " \
+              "VALUES (%s, %s, %s, %s)"
         return self.db.exec_query_insert(sql, (email, password, name, pnum))
 
     def sign_up(self, email, password, name, pnum):
@@ -64,7 +65,18 @@ class UserService:
 
         return result["userId"]
 
-    def delete_channel(self, user_id):
-        pass
+    def get_channel_list(self, user_id):
+        sql = 'SELECT chanId, channelName FROM Channel ' \
+              'WHERE userNum = %s'
+        return self.db.exec_query_fetch(sql, "all", (user_id))
+
+    def delete_channel(self, user_id, chan_id):
+        sql = 'DELETE FROM c ' \
+              'USING Channel as c ' \
+              'LEFT JOIN User as u ' \
+              'ON u.userId = c.userNum ' \
+              'WHERE u.userId = %s ' \
+              'AND c.chanId = %s'
+        return self.db.exec_query_insert(sql, (user_id, chan_id))
 
 

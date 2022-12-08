@@ -26,7 +26,7 @@ class PlService:
         # where chan_id = channelNum
         sql = 'SELECT playlistNum, playlistName, openCode ' \
               'FROM Playlist WHERE channelNum=%s'
-        return self.db.exec_query_fetch(sql, (current_chan_id))
+        return self.db.exec_query_fetch(sql, "all", (current_chan_id))
 
     def get_someones_playlists(self, some_chen_id):
         # get playlist
@@ -37,7 +37,7 @@ class PlService:
               'AND P.openCode = 0' \
               'AND P.channelNum = C.chanId'
 
-        return self.db.exec_query_fetch(sql, (some_chen_id))
+        return self.db.exec_query_fetch(sql, "all", (some_chen_id))
 
     def watch_playlist(self, now_p_num):
         # join playlist, contain, video, channel
@@ -52,6 +52,11 @@ class PlService:
               'ON c.chanId = pl.playlistNum ' \
               'WHERE pl.playlistNum = %s'
 
-        return self.db.exec_query_fetch(sql, (now_p_num))
+        return self.db.exec_query_fetch(sql, "one", (now_p_num))
 
+    def delete_playlist(self, now_p_num):
+        sql = 'DELETE FROM Playlist ' \
+              'WHERE playlistNum = %s'
+
+        return self.db.exec_query_insert(sql, (now_p_num))
 
