@@ -1,4 +1,4 @@
-from dbConn import DbConn
+from dummy_server.dbConn import DbConn
 
 # open_code
 # 0 -> open to everyone

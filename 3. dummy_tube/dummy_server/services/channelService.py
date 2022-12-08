@@ -1,4 +1,4 @@
-from dbConn import DbConn
+from dummy_server.dbConn import DbConn
 
 
 class ChannelService:
@@ -14,8 +14,7 @@ class ChannelService:
 
         sql = 'INSERT INTO Channel(channelName, userNum) ' \
               'VALUES (%s, %s)'
-        self.db.exec_query_insert(sql, (name, userid))
-        return 1
+        return self.db.exec_query_insert(sql, (name, userid))
 
 
     def update_intro(self, intro, chan_id):

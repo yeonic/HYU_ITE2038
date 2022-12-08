@@ -1,13 +1,13 @@
-from pymysql import err
 import re
 from typing import *
-from channelService import *
+from dummy_server.services.channelService import *
+from dummy_server.dbConn import DbConn
 
 
 class UserService:
     __slots__ = ["db", "channelService"]
 
-    def __init__(self, db):
+    def __init__(self, db: DbConn):
         self.db = db
         self.channelService = ChannelService(self.db)
 
@@ -43,15 +43,14 @@ class UserService:
         result: Dict = self.db.exec_query_fetch(sql, args=(email), mode='one')
 
         # then create default channel
-        res = self.channelService.create_channel(result["userName"], result["userId"], result["chanCount"])
+        res = self.channelService.create_channel(result["userName"] + "#" +str(result["userId"]), result["userId"], result["chanCount"])
         if res == 0:
+            print("Channel creation failed.")
             return 0
 
         # update channel count to 1
         sql = "UPDATE User SET chanCount = chanCount + 1 WHERE userId=%s"
-        self.db.exec_query_insert(sql, args=(result["userId"]))
-
-        return 1
+        return self.db.exec_query_insert(sql, args=(result["userId"]))
 
     def sign_in(self, email, password):
         sql = "SELECT userId FROM User WHERE email=%s AND password=%s"
@@ -60,8 +59,6 @@ class UserService:
         if result is None:
             print("Login failed.")
             return 0
-
-        print(result)
 
         return result["userId"]
 
