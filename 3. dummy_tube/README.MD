@@ -22,11 +22,11 @@
 
 
 ### class PlaylistService
-+ create_playlist
-+ delete_playlist
-+ change_openCode
-+ get_playlists
-+ watch_playlist(join with video)
++ ✅ create_playlist
++ ✅ change_open_code
++ ✅ get_my_playlists
++ ✅ get_someones_playlists
++ ✅ watch_playlist(join with video)
 
 
 ### class VideoService

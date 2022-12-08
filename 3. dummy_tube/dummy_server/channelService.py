@@ -30,3 +30,12 @@ class ChannelService:
     def watch_history(self, chan_id):
         sql = 'SELECT C.id, C.name, W.videoName, W.watchDate FROM Channel C, WatchHistory W WHERE C.chanId = &s AND C.chanId = W.watchedBy'
         return self.db.exec_query_fetch(sql, "all", (chan_id))
+
+    def delete_history(self):
+        pass
+
+    def delete_playlist(self):
+        pass
+
+    def delete_video(self):
+        pass

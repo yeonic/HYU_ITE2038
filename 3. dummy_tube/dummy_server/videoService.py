@@ -1,4 +1,4 @@
-from dbConn import *
+from dbConn import DbConn
 
 
 class VideoService:
