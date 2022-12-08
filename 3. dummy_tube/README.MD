@@ -7,12 +7,33 @@
 + ✅ create_user
 + ✅ sign_up
 + ✅ sign_in
++ delete_channel
 
 
 ### class ChannelService
 + ✅ create_channel
 + ✅ update_intro
 + ✅ update_name
++ ✅ get_channel_data
++ ✅ watch_history
++ delete_history
++ delete_playlist
++ delete_video
 
-### class 
+
+### class PlaylistService
++ create_playlist
++ delete_playlist
++ change_openCode
++ get_playlists
++ watch_playlist(join with video)
+
+
+### class VideoService
++ ✅ get_videos_to_feed
++ ✅ watch_video
++ ✅ add_to_playlist
++ ✅ create_video
++ ✅ create_history
++ ✅ update_video_detail
 

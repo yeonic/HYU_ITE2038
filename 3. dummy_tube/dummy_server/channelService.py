@@ -22,3 +22,11 @@ class ChannelService:
         sql = 'UPDATE Channel SET channelName=%s WHERE chanId=%s'
         self.db.exec_query_insert(sql, (name, chan_id))
         return 1
+
+    def get_channel_data(self, name):
+        sql = 'SELECT chanIntro, createdAt FROM Channel WHERE channelName=%s'
+        return self.db.exec_query_fetch(sql, "one", args=(name))
+
+    def watch_history(self, chan_id):
+        sql = 'SELECT C.id, C.name, W.videoName, W.watchDate FROM Channel C, WatchHistory W WHERE C.chanId = &s AND C.chanId = W.watchedBy'
+        return self.db.exec_query_fetch(sql, "all", (chan_id))

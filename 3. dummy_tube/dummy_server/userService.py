@@ -7,8 +7,8 @@ from channelService import *
 class UserService:
     __slots__ = ["db", "channelService"]
 
-    def __init__(self, db_conn):
-        self.db = db_conn
+    def __init__(self, db):
+        self.db = db
         self.channelService = ChannelService(self.db)
 
     def create_user(self, email, password, name, pnum):
@@ -63,3 +63,8 @@ class UserService:
         print(result)
 
         return result["userId"]
+
+    def delete_channel(self, user_id):
+        pass
+
+

@@ -8,8 +8,8 @@ if __name__ == "__main__":
     channel = ChannelService(db)
 
     # user.sign_up("199jo@jog.com", "1234", "jo", "010-2000-3333")
-    user.sign_in("199jo@jog.com", "123")
-    # channel.update_channel(chanIntro='hi hello')
+    # user.sign_in("199jo@jog.com", "123")
+    # channel.update_intro('This is my room', 3)
 
     print('done well')
     pass
