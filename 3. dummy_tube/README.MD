@@ -13,8 +13,10 @@
 
 
 #### class ChannelService
++ ✅ get_channel_count
 + ✅ create_channel
 + ✅ update_intro
++ ✅ check_name_overlap
 + ✅ update_name
 + ✅ get_channel_data
 + ✅ watch_history
@@ -27,7 +29,7 @@
 + ✅ change_open_code
 + ✅ get_my_playlists
 + ✅ get_someones_playlists
-+ ✅ watch_playlist(join with video)
++ ✅ watch_playlist
 + ✅ delete_playlist
 
 
