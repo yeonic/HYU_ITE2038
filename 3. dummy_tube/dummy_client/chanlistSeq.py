@@ -9,7 +9,7 @@ chan_action_q = [{
 }, {
     "type": "input",
     "name": "chanId",
-    "message": "Select ID of a channel to do action with:"
+    "message": "Select ID of a channel to join DummyTube:"
 }]
 
 
@@ -33,10 +33,16 @@ def chanlist_seq(services, current_user):
         return selected_id
 
     else:
-        res = user_service.delete_channel()
+        res = 0
+        if len(channel_list) > 1:
+            res = user_service.delete_channel()
+        else:
+            print('[Deletion fail]At least 1 channel should be exist.')
+            chanlist_seq(services, current_user)
+
         if res == 0:
-            print('Deletion failed.')
-        channel_list(services, current_user)
+            print('[Deletion fail]Something has gone wrong.')
+        chanlist_seq(services, current_user)
 
 
 def print_channel_as_table(channel_list):

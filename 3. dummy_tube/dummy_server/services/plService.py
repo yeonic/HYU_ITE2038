@@ -34,7 +34,7 @@ class PlService:
         sql = 'SELECT P.playlistNum, P.playlistName, C.channelName ' \
               'FROM Playlist P, Channel C ' \
               'WHERE P.channelNum = %s ' \
-              'AND P.openCode = 0' \
+              'AND P.openCode = 0 ' \
               'AND P.channelNum = C.chanId'
 
         return self.db.exec_query_fetch(sql, "all", (some_chen_id))

@@ -8,9 +8,14 @@ class VideoService:
         self.db = db
 
     def get_videos_to_feed(self):
-        sql = 'SELECT V.videoTitle, V.createdAt, C.channelName ' \
+        sql = 'SELECT V.videoId, V.videoTitle, V.createdAt, V.hits, C.chanId ,C.channelName ' \
               'FROM Video V, Channel C WHERE V.chanNum = C.chanId '
         return self.db.exec_query_fetch(sql, "all")
+
+    def get_others_videos_to_feed(self, other_chen_id):
+        sql = 'SELECT V.videoId, V.videoTitle, V.createdAt, V.hits, C.chanId ,C.channelName ' \
+              'FROM Video V, Channel C WHERE C.chanId=%s AND V.chanNum = C.chanId'
+        return self.db.exec_query_fetch(sql, "all", (other_chen_id))
 
     def watch_video(self, current_chan, video_id):
         # increase hits
@@ -53,7 +58,7 @@ class VideoService:
 
         sql = 'INSERT INTO WatchHistory(videoName, watchedBy) ' \
               'VALUES (%s, %s)'
-        return self.db.exec_query_insert(sql, (res_dict["viderTitle"], channel_id))
+        return self.db.exec_query_insert(sql, (res_dict["videoTitle"], channel_id))
 
     def update_video_detail(self, video_id, new_detail=''):
         sql = 'UPDATE Video SET videoDetail=%s ' \

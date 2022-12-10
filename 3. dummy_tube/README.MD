@@ -32,10 +32,11 @@
 
 #### class VideoService
 + ✅ get_videos_to_feed
++ ✅ get_others_videos_to_feed
 + ✅ watch_video
 + ✅ add_to_playlist
 + ✅ create_video
 + ✅ create_history
 + ✅ update_video_detail
 + ✅ delete_video
-
++ get_userid_by_videoId

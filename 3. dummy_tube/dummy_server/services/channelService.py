@@ -16,7 +16,6 @@ class ChannelService:
               'VALUES (%s, %s)'
         return self.db.exec_query_insert(sql, (name, userid))
 
-
     def update_intro(self, intro, chan_id):
         sql = 'UPDATE Channel SET chanIntro=%s WHERE chanId=%s'
         self.db.exec_query_insert(sql, (intro, chan_id))
@@ -27,15 +26,15 @@ class ChannelService:
         self.db.exec_query_insert(sql, (name, chan_id))
         return 1
 
-    def get_channel_data(self, name):
+    def get_channel_data(self, chan_id):
         sql = 'SELECT chanIntro, createdAt FROM Channel ' \
-              'WHERE channelName=%s'
-        return self.db.exec_query_fetch(sql, "one", args=(name))
+              'WHERE chanId=%s'
+        return self.db.exec_query_fetch(sql, "one", args=(chan_id))
 
     def watch_history(self, chan_id):
         sql = 'SELECT C.id, C.name, W.videoName, W.watchDate, W.historyNum ' \
               'FROM Channel C, WatchHistory W ' \
-              'WHERE C.chanId=&s AND C.chanId = W.watchedBy'
+              'WHERE C.chanId=%s AND C.chanId = W.watchedBy'
         return self.db.exec_query_fetch(sql, "all", (chan_id))
 
     def delete_history(self, hist_id):
