@@ -1,6 +1,6 @@
 from PyInquirer import prompt
 
-from dummy_client.utils.print_table import print_video_as_table, print_playlist_as_table
+from dummy_client.utils.print_table import print_video_as_table, print_my_playlist_table
 
 
 my_videos_q = [{
@@ -52,12 +52,12 @@ def my_video_seq(service, chen_id):
             return 0
 
         elif mv_action == "Add to playlist":
-            list_pl = pl_service.get_my_playlist(chen_id)
+            list_pl = pl_service.get_my_playlists(chen_id)
             if list_pl is None:
                 print("No playlist exists. Create it first.")
                 continue
 
-            print_playlist_as_table(list_pl)
+            print_my_playlist_table(list_pl)
             answer = prompt([video_id_q, {
                 "type": "input",
                 "name": "added_to",

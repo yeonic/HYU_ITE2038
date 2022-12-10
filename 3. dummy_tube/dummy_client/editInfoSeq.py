@@ -43,7 +43,7 @@ def edit_info_seq(service, chan_id):
             answer = prompt([{
                 "type": "input",
                 "name": "new_intro",
-                "message": "Type your new name."
+                "message": "Type your new intro."
             }])
             new_intro = answer.get("new_intro")
             res = chan_service.update_intro(new_intro, chan_id)

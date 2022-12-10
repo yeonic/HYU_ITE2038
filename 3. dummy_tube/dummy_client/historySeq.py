@@ -20,8 +20,9 @@ hist_id_q = [{
 def history_seq(service, my_channel_num):
     chan_service = service["channelService"]
 
-    # fetch history watched by user has my_chnnel_num as chanId
+    # fetch history watched by user has my_channel_num as chanId
     res = chan_service.watch_history(my_channel_num)
+
     if res == 0:
         print('Failed to fetch history. Try again.')
         return 0

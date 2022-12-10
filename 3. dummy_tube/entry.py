@@ -5,6 +5,8 @@ from dummy_client.initSeq import initial_seq
 from dummy_client.chanlistSeq import chanlist_seq
 from dummy_client.feedSeq import feed_seq
 
+from dummy_client.chanInfoSeq import my_chen_info_seq
+
 from dummy_server.services.userService import *
 from dummy_server.services.channelService import *
 from dummy_server.services.videoService import *
@@ -58,13 +60,36 @@ def main():
 
         if fet_answer == "Feed":
             feed_seq(services, current_user)
+            continue
 
         elif fet_answer == "My channel":
-            pass
+            print(current_user["channelId"])
+            my_chen_info_seq(services, current_user["channelId"])
+            continue
 
         elif fet_answer == "Create video":
-            pass
+            video_service = services["videoService"]
+            chen_id = current_user["channelId"]
 
+            answer = prompt([{
+                "type": "input",
+                "name": "video_title",
+                "message": "type your title"
+            }, {
+                "type": "input",
+                "name": "video_detail",
+                "message": "describe your video"
+            }])
+
+            video_title = answer.get("video_title")
+            video_detail = answer.get("video_detail")
+
+            res = video_service.create_video(chen_id, video_title, video_detail)
+            if res == 0:
+                print("Failed to create video.")
+
+            print("Created video successfully.")
+            continue
         else:
             break
 

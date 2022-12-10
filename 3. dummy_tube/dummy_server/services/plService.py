@@ -52,12 +52,12 @@ class PlService:
               'JOIN Playlist as pl ' \
               'ON pl.playlistNum = cs.plistId ' \
               'JOIN Video as v ' \
-              'ON v.videoId = cd.plistId ' \
+              'ON v.videoId = cs.plistId ' \
               'JOIN Channel as c ' \
-              'ON c.chanId = pl.playlistNum ' \
+              'ON c.chanId = pl.channelNum ' \
               'WHERE pl.playlistNum = %s'
 
-        return self.db.exec_query_fetch(sql, "one", (now_p_num))
+        return self.db.exec_query_fetch(sql, "all", (now_p_num))
 
     def delete_playlist(self, now_p_num):
         sql = 'DELETE FROM Playlist ' \

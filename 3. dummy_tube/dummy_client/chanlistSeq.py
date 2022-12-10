@@ -30,7 +30,7 @@ def chanlist_seq(services, current_user):
     selected_id = answer.get("chanId")
 
     if answer.get("action") == "Select":
-        return selected_id
+        return int(selected_id)
 
     else:
         res = 0

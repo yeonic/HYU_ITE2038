@@ -45,7 +45,7 @@ def feed_seq(services, current_user):
         answer = prompt(what_to_watch)
         vid_id = answer.get("what_to_watch")
         vid_owner_id = find_userid_by_videoid(video_list, int(vid_id))
-        res = watch_vid_seq(services, current_user["userId"],
+        res = watch_vid_seq(services, current_user["channelId"],
                             vid_id, vid_owner_id)
         if res == 0:
             return 0

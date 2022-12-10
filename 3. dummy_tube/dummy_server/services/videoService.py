@@ -23,6 +23,7 @@ class VideoService:
         code = self.db.exec_query_insert(sql1, (video_id))
 
         if code == 0:
+            print("Failed to increase hit")
             return 0
 
         # update watch history
@@ -30,12 +31,14 @@ class VideoService:
         res = self.create_history(current_chan, video_id)
 
         if res == 0:
+            print("failed to create history")
             return 0
 
         # fetch video
         sql = 'SELECT V.videoTitle, V.createdAt, V.hits, C.channelName ' \
               'FROM Video V, Channel C ' \
               'WHERE V.videoId = %s AND V.chanNum = C.chanId '
+
         return self.db.exec_query_fetch(sql, "one", (video_id))
 
     def add_to_playlist(self, plist_num, video_id):
@@ -59,6 +62,7 @@ class VideoService:
         sql = 'INSERT INTO WatchHistory(videoName, watchedBy) ' \
               'VALUES (%s, %s)'
         return self.db.exec_query_insert(sql, (res_dict["videoTitle"], channel_id))
+
 
     def update_video_detail(self, video_id, new_detail=''):
         sql = 'UPDATE Video SET videoDetail=%s ' \

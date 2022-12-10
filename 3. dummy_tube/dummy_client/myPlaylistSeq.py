@@ -1,12 +1,12 @@
 from PyInquirer import prompt
 
-from dummy_client.utils.print_table import print_my_playlist_table
+from dummy_client.utils.print_table import print_my_playlist_table, print_videos_in_playlist
 
 my_pl_q = [{
     "type": "list",
     "name": "pl_task",
     "message": "Choose task you want.",
-    "choices": ["Create", "Delete",
+    "choices": ["Watch playlist","Create", "Delete",
                 "Rename", "Change open scope", "Quit"]
 }]
 
@@ -28,8 +28,22 @@ def my_playlist_seq(service, chen_id):
         answer = prompt(my_pl_q)
         pl_task = answer.get("pl_task")
 
+        # watch playlist
+        if pl_task == "Watch playlist":
+            answer = prompt([pl_id])
+            to_watch = answer.get("pl_id")
+
+            res = pl_service.watch_playlist(to_watch)
+            if res == 0:
+                print("Failed to load videos.")
+                continue
+
+            print_videos_in_playlist(res)
+            print()
+            return 0
+
         # create playlist
-        if pl_task == "Create":
+        elif pl_task == "Create":
             answer = prompt([{
                 "type": "input",
                 "name": "pl_name",

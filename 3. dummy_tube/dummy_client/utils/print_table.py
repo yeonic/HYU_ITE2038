@@ -42,3 +42,16 @@ def print_my_playlist_table(pl_list):
             "global" if pl_item["openCode"] == 0 else "private"
         ])
     print_table(table)
+
+
+def print_videos_in_playlist(p_list):
+    # print("PLAYLIST " + p_list[0].get("playlistName"))
+    print(p_list[0]["playlistName"])
+    table = [["video ID", "video Title", "created by"]]
+
+    for item in p_list:
+        table.append([
+            str(item["videoId"]), item["videoTitle"],
+            item["channelName"]
+        ])
+    print_table(table)

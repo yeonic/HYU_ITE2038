@@ -11,7 +11,8 @@ def watch_vid_seq(services, curr_chen_id, video_id, video_owner_id):
         return 0
 
     print("Now playing...\n")
-    # print video information here...!
+    print(res["videoTitle"] + " | by " + res["channelName"]
+          + " | " + str(res["createdAt"]) + " | hits: " + str(res["hits"]))
     print("00:06 ━⬤───────── 04:05\n")
 
     answer = prompt([{
