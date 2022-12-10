@@ -63,7 +63,6 @@ class VideoService:
               'VALUES (%s, %s)'
         return self.db.exec_query_insert(sql, (res_dict["videoTitle"], channel_id))
 
-
     def update_video_detail(self, video_id, new_detail=''):
         sql = 'UPDATE Video SET videoDetail=%s ' \
               'WHERE videoId=%s'
