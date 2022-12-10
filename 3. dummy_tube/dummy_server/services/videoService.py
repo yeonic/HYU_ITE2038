@@ -62,7 +62,7 @@ class VideoService:
 
     def update_video_detail(self, video_id, new_detail=''):
         sql = 'UPDATE Video SET videoDetail=%s ' \
-              'WHERE video_id=%s'
+              'WHERE videoId=%s'
         return self.db.exec_query_insert(sql, (new_detail, video_id))
 
     def delete_video(self, video_id):

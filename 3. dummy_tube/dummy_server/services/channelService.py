@@ -21,6 +21,10 @@ class ChannelService:
         self.db.exec_query_insert(sql, (intro, chan_id))
         return 1
 
+    def check_name_overlap(self, name):
+        sql = 'SELECT chanId FROM Channel WHERE channelName=%s'
+        return self.db.exec_query_fetch(sql, "one", (name))
+
     def update_name(self, name, chan_id):
         sql = 'UPDATE Channel SET channelName=%s WHERE chanId=%s'
         self.db.exec_query_insert(sql, (name, chan_id))
@@ -32,12 +36,12 @@ class ChannelService:
         return self.db.exec_query_fetch(sql, "one", args=(chan_id))
 
     def watch_history(self, chan_id):
-        sql = 'SELECT C.id, C.name, W.videoName, W.watchDate, W.historyNum ' \
+        sql = 'SELECT C.chanId, C.channelName, W.videoName, W.watchDate, W.historyNum ' \
               'FROM Channel C, WatchHistory W ' \
               'WHERE C.chanId=%s AND C.chanId = W.watchedBy'
         return self.db.exec_query_fetch(sql, "all", (chan_id))
 
     def delete_history(self, hist_id):
         sql = 'DELETE FROM WatchHistory ' \
-              'WHERE playlistNum=%s'
+              'WHERE historyNum=%s'
         return self.db.exec_query_insert(sql, (hist_id))

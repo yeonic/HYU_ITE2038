@@ -5,8 +5,6 @@ from dummy_client.initSeq import initial_seq
 from dummy_client.chanlistSeq import chanlist_seq
 from dummy_client.feedSeq import feed_seq
 
-from dummy_client.watchVidSeq import watch_vid_seq
-
 from dummy_server.services.userService import *
 from dummy_server.services.channelService import *
 from dummy_server.services.videoService import *

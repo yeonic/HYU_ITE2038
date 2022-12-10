@@ -23,6 +23,7 @@
 
 #### class PlaylistService
 + ✅ create_playlist
++ ✅ rename_playlist
 + ✅ change_open_code
 + ✅ get_my_playlists
 + ✅ get_someones_playlists

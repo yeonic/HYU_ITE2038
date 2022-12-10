@@ -16,6 +16,11 @@ class PlService:
               'VALUES (%s, %s)'
         return self.db.exec_query_insert(sql, (current_chan_id, p_name))
 
+    def rename_playlist(self, pl_id, new_name):
+        sql = 'UPDATE Playlist SET playlistName=%s ' \
+              'WHERE playlistNum=%s'
+        return self.db.exec_query_insert(sql, (new_name, pl_id))
+
     def change_open_code(self, open_code, pl_id):
         sql = 'UPDATE Playlist SET openCode=%s ' \
               'WHERE playlistNum=%s'

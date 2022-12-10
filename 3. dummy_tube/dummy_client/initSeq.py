@@ -38,43 +38,44 @@ signup_q = [{
 
 
 def initial_seq(services: Dict):
-    answers = prompt(initial_q)
-    q_name = "initial_task"
-    user_service = services["userService"]
+    while True:
+        answers = prompt(initial_q)
+        q_name = "initial_task"
+        user_service = services["userService"]
 
-    if answers.get(q_name) == 'Quit':
-        print('Bye, bye')
-        return 0
+        if answers.get(q_name) == 'Quit':
+            print('Bye, bye')
+            return 0
 
-    if answers.get(q_name) == 'Sign up':
-        answers2 = prompt(signup_q)
+        if answers.get(q_name) == 'Sign up':
+            answers2 = prompt(signup_q)
 
-        res = user_service.sign_up(
-            email=answers2.get("email"),
-            password=answers2.get("password"),
-            name=answers2.get("name"),
-            pnum=answers2.get("mobile phone")
-        )
+            res = user_service.sign_up(
+                email=answers2.get("email"),
+                password=answers2.get("password"),
+                name=answers2.get("name"),
+                pnum=answers2.get("mobile phone")
+            )
 
-        # if insertion failed, return to initial seq
-        if res == 0:
-            initial_seq(services)
+            # if insertion failed, return to initial seq
+            if res == 0:
+                continue
 
-        print('signed up successfully.')
-        initial_seq(services)
+            print('signed up successfully.')
+            continue
 
-    if answers.get(q_name) == "Sign in":
-        answers3 = prompt(signin_q)
+        if answers.get(q_name) == "Sign in":
+            answers3 = prompt(signin_q)
 
-        res = user_service.sign_in(
-            email=answers3.get("email"),
-            password=answers3.get("password")
-        )
+            res = user_service.sign_in(
+                email=answers3.get("email"),
+                password=answers3.get("password")
+            )
 
-        # if login failed, return to initial seq
-        if res == 0:
-            initial_seq(services)
+            # if login failed, return to initial seq
+            if res == 0:
+                continue
 
-        print('logged in successfully.')
-        return int(res)
+            print('logged in successfully.')
+            return int(res)
 
