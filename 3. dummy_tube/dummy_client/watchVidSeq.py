@@ -15,18 +15,18 @@ def watch_vid_seq(services, curr_chen_id, video_id, video_owner_id):
           + " | " + str(res["createdAt"]) + " | hits: " + str(res["hits"]))
     print("00:06 ━⬤───────── 04:05\n")
 
-    answer = prompt([{
-        "type": "list",
-        "name": "vid_act",
-        "message": "Choose your action.",
-        "choices": ["Channel info", "Quit"]
-    }])
+    while True:
+        answer = prompt([{
+            "type": "list",
+            "name": "vid_act",
+            "message": "Choose your action.",
+            "choices": ["Channel info", "Quit"]
+        }])
 
-    action = answer.get("vid_act")
-
-    if action == "Quit":
-        return 0
-    else:
-        res = other_chen_info_seq(services, video_owner_id)
-        if res == 0:
+        action = answer.get("vid_act")
+        if action == "Quit":
             return 0
+        else:
+            res = other_chen_info_seq(services, video_owner_id)
+            if res == 0:
+                return 0

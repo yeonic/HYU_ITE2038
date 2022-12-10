@@ -29,6 +29,9 @@ def other_chen_info_seq(services, other_chen_num):
     while True:
         print("CHANNEL INFO")
         chan_intro = res["chanIntro"]
+        if chan_intro is None:
+            chan_intro = ""
+
         print("INTRO: " + chan_intro + "\n" + "CREATED_AT: " + str(res["createdAt"]))
 
         answer = prompt([{
@@ -51,7 +54,7 @@ def other_chen_info_seq(services, other_chen_num):
             answer = prompt(quit_q)
 
             if answer.get("quit") == "Quit":
-                continue
+                break
 
         elif action == "Show playlists":
             res = pl_service.get_someones_playlists(other_chen_num)
@@ -64,7 +67,7 @@ def other_chen_info_seq(services, other_chen_num):
             answer = prompt(quit_q)
 
             if answer.get("quit") == "Quit":
-                continue
+                break
 
         else:
             print("Return to menu.")
