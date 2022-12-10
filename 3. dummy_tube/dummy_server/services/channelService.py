@@ -7,6 +7,10 @@ class ChannelService:
     def __init__(self, db: DbConn):
         self.db = db
 
+    def get_channel_count(self, userid):
+        sql = 'SELECT chanCount FROM User WHERE userId=%s'
+        return self.db.exec_query_fetch(sql, "one", (userid))
+
     def create_channel(self, name, userid, chan_count):
         if chan_count > 5:
             print('you cannot create over 5 channels')
